@@ -15,9 +15,6 @@ mark pending complete
 
 
 
-going with just a single for now
-start small. big shits for the b[irds]
-
 [ this is created along with the transaction where the user pays ]
 
 one order 
@@ -29,12 +26,18 @@ token mint hash
 maybe maybe maybe optional shopify cart ID
 
 
-
-thoughts?
-wrapped solana?
-
 }
 */
+
+const sleep = async (ms) => {
+  return new Promise((res) => {
+    console.log("starting timeer");
+    setTimeout(() => {
+      res();
+      console.log("times up");
+    }, ms);
+  });
+};
 
 describe("basic-1", () => {
   // Use a local provider.
@@ -62,35 +65,55 @@ describe("basic-1", () => {
     // );
     // console.log({ mikeAccountInfo });
     const myAccount = anchor.web3.Keypair.generate();
+    console.log();
+
+    const tokenAccount = new anchor.web3.PublicKey(
+      "6s1KncZxM7ysEYHFi89TZrtsq5oVRVgtsGjYHst3Dawx"
+    );
+    const tokenMintHash = new anchor.web3.PublicKey(
+      "HioTNxi2rsWaTrBhpywe8Ai6eRXZk8McnAJAHFf57UrC"
+    );
 
     // Create the new account and initialize it with the program.
     // #region code-simplified
     try {
-      await program.rpc.initialize(new anchor.BN(1234), {
-        accounts: {
-          myAccount: myAccount.publicKey,
-          user: mike.publicKey,
-          systemProgram: SystemProgram.programId,
-          destination: new anchor.web3.PublicKey(
-            "A5bh7zKBchKWW9FVGNudu1J2ep95SyqK7gfhRp9ZnZpv"
-          ),
-        },
-        signers: [mike, myAccount],
-      });
+      await program.rpc.initialize(
+        new anchor.BN(1236),
+        // new anchor.BN(4321),
+        // mike.publicKey,
+        // mike.publicKey,
+        // tokenAccount,
+        // tokenMintHash,
+        {
+          accounts: {
+            myAccount: myAccount.publicKey,
+            user: mike.publicKey,
+            systemProgram: SystemProgram.programId,
+            destination: new anchor.web3.PublicKey(
+              "A5bh7zKBchKWW9FVGNudu1J2ep95SyqK7gfhRp9ZnZpv"
+            ),
+          },
+          signers: [mike, myAccount],
+        }
+      );
       // #endregion code-simplified
     } catch (e) {
-      assert(
-        e.msg === "Not enough SOL. A slab costs 1 SOL.",
-        "Defo should have crashed here, NGMI"
-      );
-      return;
+      console.log({ e });
+      // assert.ok(
+      //   e.msg === "Not enough SOL. A slab costs 1 SOL.",
+      //   "Defo should have crashed here, NGMI"
+      // );
+      // return;
     }
 
+    // await sleep(25000);
     // Fetch the newly created account from the cluster.
     const account = await program.account.myAccount.fetch(myAccount.publicKey);
 
     // Check it's state was initialized.
-    assert.ok(account.data.eq(new anchor.BN(1234)));
+    assert.ok(account.data.eq(new anchor.BN(1236)));
+    // assert.ok(account.tokenWallet.eq(tokenAccount));
+    // assert.ok(account.mintHas.eq(tokenMintHash));
 
     // Store the account for the next test.
     // _myAccount = myAccount;

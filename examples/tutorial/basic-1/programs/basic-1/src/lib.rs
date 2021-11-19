@@ -7,11 +7,17 @@ declare_id!("7aCUbFSGhaXtdAsZzmZKFhaHk3KJmCHrPUASc5mL4iHx");
 mod basic_1 {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>, data: u64) -> ProgramResult {
-        let cost = 10000000000000000000;
+    pub fn initialize(
+        ctx: Context<Initialize>,
+        data: u64,
+        // foo: u64,
+        // token_wallet: Pubkey,
+        // mint_hash: Pubkey,
+    ) -> ProgramResult {
+        // msg!("Foo is {}", foo);
+        let cost = 1_000_000_000;
         let my_account = &mut ctx.accounts.my_account;
         let user = &mut ctx.accounts.user;
-        my_account.data = data;
 
         msg!("lamports from mike {}", user.to_account_info().lamports());
         if user.lamports() < cost {
@@ -31,6 +37,10 @@ mod basic_1 {
             ],
         )?;
 
+        my_account.data = data;
+        // my_account.token_wallet = token_wallet;
+        // my_account.mint_hash = mint_hash;
+
         Ok(())
     }
 
@@ -40,6 +50,12 @@ mod basic_1 {
         Ok(())
     }
 }
+
+// one order
+// {
+// [ selected nft ]
+// token wallet address
+// token mint hash
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
@@ -61,6 +77,8 @@ pub struct Update<'info> {
 #[account]
 pub struct MyAccount {
     pub data: u64,
+    // pub token_wallet: Pubkey,
+    // pub mint_hash: Pubkey,
 }
 
 #[error]
