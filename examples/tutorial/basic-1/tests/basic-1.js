@@ -67,23 +67,22 @@ describe("basic-1", () => {
     const myAccount = anchor.web3.Keypair.generate();
     console.log();
 
-    const tokenAccount = new anchor.web3.PublicKey(
-      "6s1KncZxM7ysEYHFi89TZrtsq5oVRVgtsGjYHst3Dawx"
-    );
-    const tokenMintHash = new anchor.web3.PublicKey(
-      "HioTNxi2rsWaTrBhpywe8Ai6eRXZk8McnAJAHFf57UrC"
-    );
+    const tokenAccount =
+      // new anchor.web3.PublicKey(
+      "6s1KncZxM7ysEYHFi89TZrtsq5oVRVgtsGjYHst3Dawx";
+    // );
+    const tokenMintHash =
+      // new anchor.web3.PublicKey(
+      "HioTNxi2rsWaTrBhpywe8Ai6eRXZk8McnAJAHFf57UrC";
+    // );
 
     // Create the new account and initialize it with the program.
     // #region code-simplified
     try {
       await program.rpc.initialize(
         new anchor.BN(1236),
-        // new anchor.BN(4321),
-        // mike.publicKey,
-        // mike.publicKey,
-        // tokenAccount,
-        // tokenMintHash,
+        tokenAccount,
+        tokenMintHash,
         {
           accounts: {
             myAccount: myAccount.publicKey,
@@ -106,13 +105,12 @@ describe("basic-1", () => {
       // return;
     }
 
-    // await sleep(25000);
     // Fetch the newly created account from the cluster.
     const account = await program.account.myAccount.fetch(myAccount.publicKey);
 
     // Check it's state was initialized.
     assert.ok(account.data.eq(new anchor.BN(1236)));
-    // assert.ok(account.tokenWallet.eq(tokenAccount));
+    assert.ok(account.tokenWallet === tokenAccount);
     // assert.ok(account.mintHas.eq(tokenMintHash));
 
     // Store the account for the next test.

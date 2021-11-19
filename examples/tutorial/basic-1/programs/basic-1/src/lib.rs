@@ -10,11 +10,9 @@ mod basic_1 {
     pub fn initialize(
         ctx: Context<Initialize>,
         data: u64,
-        // foo: u64,
-        // token_wallet: Pubkey,
-        // mint_hash: Pubkey,
+        token_wallet: String,
+        mint_hash: String,
     ) -> ProgramResult {
-        // msg!("Foo is {}", foo);
         let cost = 1_000_000_000;
         let my_account = &mut ctx.accounts.my_account;
         let user = &mut ctx.accounts.user;
@@ -38,8 +36,8 @@ mod basic_1 {
         )?;
 
         my_account.data = data;
-        // my_account.token_wallet = token_wallet;
-        // my_account.mint_hash = mint_hash;
+        my_account.token_wallet = token_wallet;
+        my_account.mint_hash = mint_hash;
 
         Ok(())
     }
@@ -59,7 +57,7 @@ mod basic_1 {
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
-    #[account(init, payer = user, space = 8 + 8)]
+    #[account(init, payer = user, space = 8 + 8 + 100)]
     pub my_account: Account<'info, MyAccount>,
     #[account(mut)]
     pub user: Signer<'info>,
@@ -77,8 +75,8 @@ pub struct Update<'info> {
 #[account]
 pub struct MyAccount {
     pub data: u64,
-    // pub token_wallet: Pubkey,
-    // pub mint_hash: Pubkey,
+    pub token_wallet: String,
+    pub mint_hash: String,
 }
 
 #[error]
