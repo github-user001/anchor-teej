@@ -82,7 +82,7 @@ describe("basic-1", () => {
       await program.rpc.initialize(
         new anchor.BN(1236),
         new anchor.web3.PublicKey(tokenAccount),
-        tokenMintHash,
+        new anchor.web3.PublicKey(tokenMintHash),
         {
           accounts: {
             myAccount: myAccount.publicKey,
@@ -107,6 +107,11 @@ describe("basic-1", () => {
 
     // Fetch the newly created account from the cluster.
     const account = await program.account.myAccount.fetch(myAccount.publicKey);
+
+    const allOfMyAccounts = await provider.connection.getProgramAccounts(
+      new anchor.web3.PublicKey("7aCUbFSGhaXtdAsZzmZKFhaHk3KJmCHrPUASc5mL4iHx")
+    );
+    console.log({ allOfMyAccounts });
 
     // Check it's state was initialized.
     assert.ok(account.data.eq(new anchor.BN(1236)));

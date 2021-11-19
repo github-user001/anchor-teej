@@ -11,7 +11,7 @@ mod basic_1 {
         ctx: Context<Initialize>,
         data: u64,
         token_wallet: Pubkey,
-        mint_hash: String,
+        mint_hash: Pubkey,
     ) -> ProgramResult {
         let cost = 1_000_000_000;
         let my_account = &mut ctx.accounts.my_account;
@@ -49,12 +49,6 @@ mod basic_1 {
     }
 }
 
-// one order
-// {
-// [ selected nft ]
-// token wallet address
-// token mint hash
-
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(init, payer = user, space = 8 + 8 + 100)]
@@ -76,7 +70,7 @@ pub struct Update<'info> {
 pub struct MyAccount {
     pub data: u64,
     pub token_wallet: Pubkey,
-    pub mint_hash: String,
+    pub mint_hash: Pubkey,
 }
 
 #[error]
