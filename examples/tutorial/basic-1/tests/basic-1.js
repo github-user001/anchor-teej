@@ -38,7 +38,8 @@ wrapped solana?
 
 describe("basic-1", () => {
   // Use a local provider.
-  const provider = anchor.Provider.local("https://api.devnet.solana.com");
+  const devnet = "https://api.devnet.solana.com";
+  const provider = anchor.Provider.local(devnet);
 
   // Configure the client to use the local cluster.
   anchor.setProvider(provider);
@@ -56,7 +57,11 @@ describe("basic-1", () => {
     ];
     // The Account to create.
     const mike = anchor.web3.Keypair.fromSecretKey(new Uint8Array(privateKey));
-
+    console.log(mike.publicKey.toBase58());
+    const mikeAccountInfo = await program.provider.connection.getAccountInfo(
+      mike
+    );
+    console.log({ mikeAccountInfo });
     const myAccount = anchor.web3.Keypair.generate();
 
     // Create the new account and initialize it with the program.
