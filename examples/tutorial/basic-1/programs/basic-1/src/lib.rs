@@ -10,7 +10,7 @@ mod basic_1 {
     pub fn initialize(
         ctx: Context<Initialize>,
         data: u64,
-        token_wallet: String,
+        token_wallet: Pubkey,
         mint_hash: String,
     ) -> ProgramResult {
         let cost = 1_000_000_000;
@@ -75,7 +75,7 @@ pub struct Update<'info> {
 #[account]
 pub struct MyAccount {
     pub data: u64,
-    pub token_wallet: String,
+    pub token_wallet: Pubkey,
     pub mint_hash: String,
 }
 

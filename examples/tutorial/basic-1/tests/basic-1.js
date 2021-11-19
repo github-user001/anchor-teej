@@ -81,7 +81,7 @@ describe("basic-1", () => {
     try {
       await program.rpc.initialize(
         new anchor.BN(1236),
-        tokenAccount,
+        new anchor.web3.PublicKey(tokenAccount),
         tokenMintHash,
         {
           accounts: {
@@ -110,7 +110,8 @@ describe("basic-1", () => {
 
     // Check it's state was initialized.
     assert.ok(account.data.eq(new anchor.BN(1236)));
-    assert.ok(account.tokenWallet === tokenAccount);
+    console.log(account);
+    assert.ok(account.tokenWallet.toBase58() === tokenAccount);
     // assert.ok(account.mintHas.eq(tokenMintHash));
 
     // Store the account for the next test.
