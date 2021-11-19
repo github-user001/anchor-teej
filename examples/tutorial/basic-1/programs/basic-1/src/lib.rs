@@ -1,8 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::{
-    program::{invoke},
-    system_instruction,
-};
+use anchor_lang::solana_program::{program::invoke, system_instruction};
 
 declare_id!("7aCUbFSGhaXtdAsZzmZKFhaHk3KJmCHrPUASc5mL4iHx");
 
@@ -11,20 +8,21 @@ mod basic_1 {
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>, data: u64) -> ProgramResult {
+        let cost = 10000000000000000000;
         let my_account = &mut ctx.accounts.my_account;
         let user = &mut ctx.accounts.user;
         my_account.data = data;
 
-        msg!("myacounmt is signer {}", my_account.to_account_info().is_signer);
-        msg!("user account is signer{}", user.to_account_info().is_signer);
-
-        msg!("Hi there");
+        msg!("lamports from mike {}", user.to_account_info().lamports());
+        if user.lamports() < cost {
+            return Err(ErrorCode::NotEnoughSOL.into());
+        }
 
         invoke(
             &system_instruction::transfer(
-                &ctx.accounts.user.key, //311.216876674
+                &ctx.accounts.user.key,       //311.216876674
                 ctx.accounts.destination.key, // 1525
-                1000000000,
+                cost,
             ),
             &[
                 ctx.accounts.user.to_account_info(),
@@ -32,8 +30,6 @@ mod basic_1 {
                 ctx.accounts.system_program.to_account_info(),
             ],
         )?;
-
-
 
         Ok(())
     }
@@ -65,4 +61,10 @@ pub struct Update<'info> {
 #[account]
 pub struct MyAccount {
     pub data: u64,
+}
+
+#[error]
+pub enum ErrorCode {
+    #[msg("Not enough SOL. A slab costs 1 SOL.")]
+    NotEnoughSOL,
 }

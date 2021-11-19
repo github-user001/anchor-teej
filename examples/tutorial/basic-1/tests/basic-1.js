@@ -57,27 +57,34 @@ describe("basic-1", () => {
     ];
     // The Account to create.
     const mike = anchor.web3.Keypair.fromSecretKey(new Uint8Array(privateKey));
-    console.log(mike.publicKey.toBase58());
-    const mikeAccountInfo = await program.provider.connection.getAccountInfo(
-      mike
-    );
-    console.log({ mikeAccountInfo });
+    // const mikeAccountInfo = await program.provider.connection.getAccountInfo(
+    //   mike.
+    // );
+    // console.log({ mikeAccountInfo });
     const myAccount = anchor.web3.Keypair.generate();
 
     // Create the new account and initialize it with the program.
     // #region code-simplified
-    await program.rpc.initialize(new anchor.BN(1234), {
-      accounts: {
-        myAccount: myAccount.publicKey,
-        user: mike.publicKey,
-        systemProgram: SystemProgram.programId,
-        destination: new anchor.web3.PublicKey(
-          "A5bh7zKBchKWW9FVGNudu1J2ep95SyqK7gfhRp9ZnZpv"
-        ),
-      },
-      signers: [mike, myAccount],
-    });
-    // #endregion code-simplified
+    try {
+      await program.rpc.initialize(new anchor.BN(1234), {
+        accounts: {
+          myAccount: myAccount.publicKey,
+          user: mike.publicKey,
+          systemProgram: SystemProgram.programId,
+          destination: new anchor.web3.PublicKey(
+            "A5bh7zKBchKWW9FVGNudu1J2ep95SyqK7gfhRp9ZnZpv"
+          ),
+        },
+        signers: [mike, myAccount],
+      });
+      // #endregion code-simplified
+    } catch (e) {
+      assert(
+        e.msg === "Not enough SOL. A slab costs 1 SOL.",
+        "Defo should have crashed here, NGMI"
+      );
+      return;
+    }
 
     // Fetch the newly created account from the cluster.
     const account = await program.account.myAccount.fetch(myAccount.publicKey);
