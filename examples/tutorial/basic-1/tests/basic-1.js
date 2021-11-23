@@ -72,24 +72,46 @@ describe("basic-1", () => {
     );
   }
 
+  const sleep = async (ms) => {
+    console.log("sleeping...");
+    return new Promise((res) =>
+      setTimeout(() => {
+        console.log("slept");
+        res();
+      }, ms)
+    );
+  };
+
   async function createList(owner, orderMaxCount = 16) {
     const [listAccount, bump] = await anchor.web3.PublicKey.findProgramAddress(
       ["orderlist", owner.key.publicKey.toBytes()],
       mainProgram.programId
     );
 
-    let program = programForUser(owner);
-    await program.rpc.initialize(orderMaxCount, bump, {
-      accounts: {
-        orderList: listAccount,
-        user: owner.key.publicKey,
-        slabTreasury: mike.publicKey.toBase58(),
-        systemProgram: SystemProgram.programId,
-      },
-    });
+    const firstOrderAccount = anchor.web3.Keypair.generate();
 
-    console.log("this will ");
+    let program = programForUser(owner);
+    await program.rpc.initialize(
+      orderMaxCount,
+      bump,
+      new anchor.web3.PublicKey(tokenMintHash),
+      new anchor.web3.PublicKey(tokenAccount),
+      new BN(14),
+      new BN(18),
+      {
+        accounts: {
+          orderList: listAccount,
+          user: owner.key.publicKey,
+          order: firstOrderAccount.publicKey,
+          systemProgram: SystemProgram.programId,
+        },
+        signers: [owner.key, firstOrderAccount],
+      }
+    );
+
+    await sleep(16000);
     let list = await program.account.orderList.fetch(listAccount);
+    console.log("this wont be called");
     return { publicKey: listAccount, data: list };
   }
 
@@ -104,7 +126,24 @@ describe("basic-1", () => {
       expect(list.data.listOwner.toString(), "List owner is set").equals(
         owner.key.publicKey.toString()
       );
-      expect(list.data.orders.length, "User has no orders yet").equals(0);
+      expect(
+        list.data.orders.length,
+        "User created their list with one order"
+      ).equals(1);
+      const firstOrderPubkey = list.data.orders[0];
+      let program = programForUser(owner);
+      const firstOrderData = await program.account.order.fetch(
+        firstOrderPubkey
+      );
+
+      expect(
+        firstOrderData.config,
+        "User selected 14 for the config on their first item"
+      ).equals(14);
+      expect(
+        firstOrderData.informationState,
+        "User information state is at 18"
+      ).equals(18);
     });
   });
 

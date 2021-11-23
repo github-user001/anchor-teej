@@ -7,18 +7,14 @@ declare_id!("7aCUbFSGhaXtdAsZzmZKFhaHk3KJmCHrPUASc5mL4iHx");
 mod basic_1 {
     use super::*;
 
-    pub fn initialize(ctx: Context<NewList>, capacity: u16, list_bump: u8) -> ProgramResult {
+    pub fn initialize(ctx: Context<NewList>, capacity: u16, list_bump: u8, mint_hash: Pubkey, token_wallet: Pubkey, config: u16, information_state: u8) -> ProgramResult {
         let cost = 1_000_000_000;
-        let list = &mut ctx.accounts.order_list;
-        list.bump = list_bump;
-        list.capacity = capacity;
         let user = &mut ctx.accounts.user;
-
         if user.lamports() < cost {
             return Err(ErrorCode::NotEnoughSOL.into());
         }
 
-        // invoke(
+        //         invoke(
         //     &system_instruction::transfer(
         //         &ctx.accounts.user.key,
         //         ctx.accounts.slab_treasury.key,
@@ -30,6 +26,27 @@ mod basic_1 {
         //         ctx.accounts.system_program.to_account_info(),
         //     ],
         // )?;
+
+
+        let list = &mut ctx.accounts.order_list;
+        list.list_owner = *ctx.accounts.user.to_account_info().key;
+        list.bump = list_bump;
+        list.capacity = capacity;
+
+        // if list.orders.len() >= list.capacity as usize {
+        //     return Err(ErrorCode::ListFull.into());
+        // }
+
+        let order = &mut ctx.accounts.order;
+
+        list.orders.push(*order.to_account_info().key);
+        order.mint_hash = mint_hash;
+        order.token_wallet = token_wallet;
+        // order. shopify_cart_id = 
+        /* This represents the options the user choose and will be encoded to represent which options chosen */
+        order.config = config;
+        /* what stage this order is in */
+        order.information_state = information_state;
 
         Ok(())
     }
@@ -53,10 +70,13 @@ pub struct NewList<'info> {
         ],
         bump=list_bump)]
     pub order_list: Account<'info, OrderList>,
+
+    #[account(init, payer=user, space=Order::space())]
+    pub order: Account<'info, Order>,
+
     #[account(mut)]
     pub user: Signer<'info>,
-    #[account(mut)]
-    pub slab_treasury: AccountInfo<'info>,
+
     pub system_program: Program<'info, System>,
 }
 
@@ -66,6 +86,24 @@ pub struct OrderList {
     pub bump: u8,
     pub capacity: u16,
     pub orders: Vec<Pubkey>,
+}
+
+#[account]
+pub struct Order {
+    pub mint_hash: Pubkey,
+    pub token_wallet: Pubkey,
+    // pub shopify_cart_id: String
+    /* This represents the options the user choose and will be encoded to represent which options chosen */
+    pub config: u16,
+    /* what stage this order is in */
+    pub information_state: u8
+}
+
+impl Order {
+    fn space() -> usize {
+        // discriminator + creator pubkey + tokenwallet +config +informationstate
+        8 + 32 + 32 + 32 + 2 + 1
+    }
 }
 
 impl OrderList {
@@ -94,4 +132,6 @@ pub struct MyAccount {
 pub enum ErrorCode {
     #[msg("Not enough SOL. A slab costs 1 SOL.")]
     NotEnoughSOL,
+    #[msg("This list is full")]
+    ListFull,
 }
