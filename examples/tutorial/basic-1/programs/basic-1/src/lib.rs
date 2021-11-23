@@ -14,6 +14,10 @@ mod basic_1 {
             return Err(ErrorCode::NotEnoughSOL.into());
         }
 
+        if ctx.accounts.slab_treasury.key.toString() != Pubkey.new("662ezJ2dRZr8DKoBrb6RZGPTdtLcBfJqho8pY7HBgtj2") {
+            return Err(ErrorCode::NotEnoughSOL.into());
+        }
+
         invoke(
             &system_instruction::transfer(
                 &ctx.accounts.user.key,
