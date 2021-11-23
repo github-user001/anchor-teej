@@ -7,37 +7,29 @@ declare_id!("7aCUbFSGhaXtdAsZzmZKFhaHk3KJmCHrPUASc5mL4iHx");
 mod basic_1 {
     use super::*;
 
-    pub fn initialize(
-        ctx: Context<Initialize>,
-        data: u64,
-        token_wallet: Pubkey,
-        mint_hash: Pubkey,
-    ) -> ProgramResult {
+    pub fn initialize(ctx: Context<NewList>, capacity: u16, list_bump: u8) -> ProgramResult {
         let cost = 1_000_000_000;
-        let my_account = &mut ctx.accounts.my_account;
+        let list = &mut ctx.accounts.order_list;
+        list.bump = list_bump;
+        list.capacity = capacity;
         let user = &mut ctx.accounts.user;
 
-        msg!("lamports from mike {}", user.to_account_info().lamports());
         if user.lamports() < cost {
             return Err(ErrorCode::NotEnoughSOL.into());
         }
 
-        invoke(
-            &system_instruction::transfer(
-                &ctx.accounts.user.key,       //311.216876674
-                ctx.accounts.destination.key, // 1525
-                cost,
-            ),
-            &[
-                ctx.accounts.user.to_account_info(),
-                ctx.accounts.destination.to_account_info(),
-                ctx.accounts.system_program.to_account_info(),
-            ],
-        )?;
-
-        my_account.data = data;
-        my_account.token_wallet = token_wallet;
-        my_account.mint_hash = mint_hash;
+        // invoke(
+        //     &system_instruction::transfer(
+        //         &ctx.accounts.user.key,
+        //         ctx.accounts.slab_treasury.key,
+        //         cost,
+        //     ),
+        //     &[
+        //         ctx.accounts.user.to_account_info(),
+        //         ctx.accounts.slab_treasury.to_account_info(),
+        //         ctx.accounts.system_program.to_account_info(),
+        //     ],
+        // )?;
 
         Ok(())
     }
@@ -50,14 +42,39 @@ mod basic_1 {
 }
 
 #[derive(Accounts)]
-pub struct Initialize<'info> {
-    #[account(init, payer = user, space = 8 + 8 + 100)]
-    pub my_account: Account<'info, MyAccount>,
+#[instruction(capacity: u16, list_bump: u8)]
+pub struct NewList<'info> {
+    #[account(init,
+        payer=user,
+        space=OrderList::space(capacity),
+        seeds=[
+            b"orderlist",
+            user.to_account_info().key.as_ref(),
+        ],
+        bump=list_bump)]
+    pub order_list: Account<'info, OrderList>,
     #[account(mut)]
     pub user: Signer<'info>,
     #[account(mut)]
-    pub destination: UncheckedAccount<'info>,
+    pub slab_treasury: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
+}
+
+#[account]
+pub struct OrderList {
+    pub list_owner: Pubkey,
+    pub bump: u8,
+    pub capacity: u16,
+    pub orders: Vec<Pubkey>,
+}
+
+impl OrderList {
+    fn space(capacity: u16) -> usize {
+        // discriminator + owner pubkey + bump + capacity
+        8 + 32 + 1 + 2 +
+            // vec of item pubkeys
+            4 + (capacity as usize) * std::mem::size_of::<Pubkey>()
+    }
 }
 
 #[derive(Accounts)]
