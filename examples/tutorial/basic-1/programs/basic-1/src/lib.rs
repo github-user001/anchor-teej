@@ -14,10 +14,6 @@ mod basic_1 {
             return Err(ErrorCode::NotEnoughSOL.into());
         }
 
-        if ctx.accounts.slab_treasury.key.toString() != Pubkey.new("662ezJ2dRZr8DKoBrb6RZGPTdtLcBfJqho8pY7HBgtj2") {
-            return Err(ErrorCode::NotEnoughSOL.into());
-        }
-
         invoke(
             &system_instruction::transfer(
                 &ctx.accounts.user.key,
@@ -81,7 +77,7 @@ pub struct NewList<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
 
-    #[account(mut)]
+    #[account(mut), address="662ezJ2dRZr8DKoBrb6RZGPTdtLcBfJqho8pY7HBgtj2"]
     pub slab_treasury: AccountInfo<'info>,
 
     pub system_program: Program<'info, System>,
