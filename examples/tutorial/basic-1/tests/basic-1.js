@@ -104,6 +104,7 @@ describe("basic-1", () => {
           user: owner.key.publicKey,
           order: firstOrderAccount.publicKey,
           systemProgram: SystemProgram.programId,
+          slabTreasury: mike.publicKey,
         },
         signers: [owner.key, firstOrderAccount],
       }

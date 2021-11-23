@@ -14,18 +14,18 @@ mod basic_1 {
             return Err(ErrorCode::NotEnoughSOL.into());
         }
 
-        //         invoke(
-        //     &system_instruction::transfer(
-        //         &ctx.accounts.user.key,
-        //         ctx.accounts.slab_treasury.key,
-        //         cost,
-        //     ),
-        //     &[
-        //         ctx.accounts.user.to_account_info(),
-        //         ctx.accounts.slab_treasury.to_account_info(),
-        //         ctx.accounts.system_program.to_account_info(),
-        //     ],
-        // )?;
+        invoke(
+            &system_instruction::transfer(
+                &ctx.accounts.user.key,
+                ctx.accounts.slab_treasury.key,
+                cost,
+            ),
+            &[
+                ctx.accounts.user.to_account_info(),
+                ctx.accounts.slab_treasury.to_account_info(),
+                ctx.accounts.system_program.to_account_info(),
+            ],
+        )?;
 
 
         let list = &mut ctx.accounts.order_list;
@@ -76,6 +76,9 @@ pub struct NewList<'info> {
 
     #[account(mut)]
     pub user: Signer<'info>,
+
+    #[account(mut)]
+    pub slab_treasury: AccountInfo<'info>,
 
     pub system_program: Program<'info, System>,
 }
