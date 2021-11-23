@@ -7,7 +7,15 @@ declare_id!("7aCUbFSGhaXtdAsZzmZKFhaHk3KJmCHrPUASc5mL4iHx");
 mod basic_1 {
     use super::*;
 
-    pub fn initialize(ctx: Context<NewList>, capacity: u16, list_bump: u8, mint_hash: Pubkey, token_wallet: Pubkey, config: u16, information_state: u8) -> ProgramResult {
+    pub fn initialize(
+        ctx: Context<NewList>,
+        capacity: u16,
+        list_bump: u8,
+        mint_hash: Pubkey,
+        token_wallet: Pubkey,
+        config: u16,
+        information_state: u8,
+    ) -> ProgramResult {
         let cost = 1_000_000_000;
         let user = &mut ctx.accounts.user;
         if user.lamports() < cost {
@@ -27,7 +35,6 @@ mod basic_1 {
             ],
         )?;
 
-
         let list = &mut ctx.accounts.order_list;
         list.list_owner = *ctx.accounts.user.to_account_info().key;
         list.bump = list_bump;
@@ -42,7 +49,7 @@ mod basic_1 {
         list.orders.push(*order.to_account_info().key);
         order.mint_hash = mint_hash;
         order.token_wallet = token_wallet;
-        // order. shopify_cart_id = 
+        // order. shopify_cart_id =
         /* This represents the options the user choose and will be encoded to represent which options chosen */
         order.config = config;
         /* what stage this order is in */
@@ -77,7 +84,7 @@ pub struct NewList<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
 
-    #[account(mut), address="662ezJ2dRZr8DKoBrb6RZGPTdtLcBfJqho8pY7HBgtj2"]
+    #[account(mut, address = Pubkey::try_from("asd").unwrap())]
     pub slab_treasury: AccountInfo<'info>,
 
     pub system_program: Program<'info, System>,
@@ -99,7 +106,7 @@ pub struct Order {
     /* This represents the options the user choose and will be encoded to represent which options chosen */
     pub config: u16,
     /* what stage this order is in */
-    pub information_state: u8
+    pub information_state: u8,
 }
 
 impl Order {
